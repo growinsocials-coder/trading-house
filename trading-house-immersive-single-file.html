@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trading House</title>
+<style>
+:root {
+  --text:#f7fbff;
+  --muted:#9eb0c5;
+  --blue:#2f7cff;
+  --cyan:#78ddff;
+  --panel:rgba(255,255,255,.055);
+  --line:rgba(255,255,255,.09);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 50% -10%,rgba(112,211,255,.12),transparent 26%),
+    radial-gradient(circle at 90% 25%,rgba(47,124,255,.08),transparent 21%),
+    linear-gradient(180deg,#040810,#08121f 52%,#040810);
+  overflow-x:hidden;
+}
+button{font:inherit}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(1220px,calc(100% - 30px));margin:auto}
+
+nav{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;
+  width:min(1160px,calc(100% - 24px));height:66px;padding:0 18px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-radius:22px;background:rgba(5,11,20,.58);
+  backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 16px 50px rgba(0,0,0,.28)
+}
+.brand{font-weight:900;letter-spacing:-.045em}
+.navmeta{font-size:11px;letter-spacing:.16em;color:#8ca4bf;font-weight:900}
+
+.hero{
+  min-height:100vh;display:grid;place-items:center;text-align:center;
+  padding:130px 20px 70px;position:relative;overflow:hidden
+}
+.hero:before{
+  content:"";position:absolute;width:540px;height:540px;right:-140px;top:80px;border-radius:50%;
+  background:radial-gradient(circle at 40% 30%,rgba(255,255,255,.18),rgba(120,220,255,.24) 35%,rgba(47,124,255,.08) 60%,transparent 74%);
+  filter:blur(9px)
+}
+.hero-inner{position:relative;z-index:2}
+.hero-badge{
+  display:inline-flex;padding:9px 14px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);
+  font-size:11px;letter-spacing:.15em;font-weight:900;color:#9db4cd;text-transform:uppercase
+}
+h1{font-size:clamp(82px,11vw,154px);line-height:.82;letter-spacing:-.09em;margin:20px 0 18px}
+h1 span{
+  display:block;background:linear-gradient(120deg,#fff,#7ddfff 54%,#4c7fff);
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.hero p{font-size:clamp(20px,2vw,28px);line-height:1.4;color:#a8b9cc;max-width:700px;margin:auto}
+
+.open{
+  margin-top:32px;display:inline-flex;padding:16px 26px;border-radius:999px;
+  background:linear-gradient(135deg,#111c31,#235fcb 58%,#4fc7ff);
+  font-size:13px;font-weight:900;letter-spacing:.14em;
+  box-shadow:0 18px 44px rgba(34,99,211,.22)
+}
+.scroll-hint{
+  margin:30px auto 0;display:flex;flex-direction:column;align-items:center;gap:10px;
+  color:#7f96b0;font-size:10px;font-weight:900;letter-spacing:.16em
+}
+.scroll-mouse{
+  width:34px;height:52px;border:1px solid rgba(255,255,255,.16);
+  border-radius:999px;display:flex;justify-content:center;padding-top:8px
+}
+.scroll-mouse i{
+  width:3px;height:10px;border-radius:999px;background:linear-gradient(#7bdfff,#3978ff);
+  animation:scrollDot 1.5s ease-in-out infinite
+}
+@keyframes scrollDot{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(22px);opacity:1}}
+
+.room-section{padding:80px 0 120px}
+.room-section h2{text-align:center;font-size:clamp(44px,5.5vw,76px);line-height:.95;letter-spacing:-.065em;margin:0 0 16px}
+.room-section>.wrap>p{text-align:center;color:#9fb1c6;font-size:18px;max-width:680px;margin:0 auto 40px;line-height:1.55}
+.rooms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+
+.room-card{
+  appearance:none;color:inherit;text-align:left;cursor:pointer;
+  padding:22px;border-radius:30px;
+  background:linear-gradient(155deg,rgba(255,255,255,.065),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 24px 70px rgba(0,0,0,.24);
+  transition:.3s
+}
+.room-card:hover{transform:translateY(-5px);border-color:rgba(124,224,255,.17);box-shadow:0 34px 90px rgba(0,0,0,.32)}
+.door-wrap{height:350px;display:grid;place-items:center;perspective:1000px;position:relative}
+.door-aura{
+  position:absolute;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle,var(--accent),transparent 70%);
+  opacity:.23;filter:blur(26px)
+}
+.door-frame{
+  width:220px;height:320px;padding:10px;border-radius:28px 28px 14px 14px;
+  background:linear-gradient(145deg,#fff,rgba(183,222,255,.6),#fff);
+  box-shadow:0 24px 55px rgba(0,0,0,.30)
+}
+.door-panel{
+  height:100%;position:relative;overflow:hidden;border-radius:20px 20px 8px 8px;
+  background:radial-gradient(circle at 66% 16%,rgba(136,220,255,.18),transparent 26%),linear-gradient(165deg,#0b1320,#112946 55%,#08111d)
+}
+.door-grid{
+  position:absolute;inset:0;
+  background:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:40px 40px;opacity:.22
+}
+.door-glare{position:absolute;inset:-30% 46% -20% -30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-16deg)}
+.door-symbol{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);font-size:31px;font-weight:900;text-shadow:0 0 24px rgba(98,207,255,.6)}
+.door-line{position:absolute;left:17%;right:17%;top:53%;height:1px;background:linear-gradient(90deg,transparent,#77ddff,transparent)}
+.door-knob{position:absolute;right:20px;top:57%;width:11px;height:11px;border-radius:50%;background:#9fe7ff;box-shadow:0 0 14px #73d9ff}
+.room-meta{text-align:center}
+.room-meta span{font-size:10px;letter-spacing:.15em;color:#7892af;font-weight:900}
+.room-meta h3{font-size:30px;letter-spacing:-.045em;margin:12px 0}
+.room-meta p{color:#9fb1c6;line-height:1.5;min-height:72px}
+.room-meta b{display:inline-block;margin-top:14px;color:#7edfff;font-size:12px;letter-spacing:.06em}
+
+.detail-view{display:none;padding:120px 20px 100px}
+.detail-view.active{display:block}
+.detail-nav{width:min(1160px,100%);margin:0 auto 38px}
+.back-btn{
+  border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);color:#9eb2c9;
+  border-radius:999px;padding:11px 15px;font-weight:850;cursor:pointer
+}
+.detail-hero{width:min(1160px,100%);margin:auto;display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center}
+.detail-badge{display:inline-flex;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);font-size:11px;letter-spacing:.14em;font-weight:900;color:#95abc3}
+.detail-copy h2{font-size:clamp(54px,7vw,96px);line-height:.88;letter-spacing:-.075em;margin:18px 0 20px}
+.detail-lead{font-size:22px;line-height:1.45;color:#a9bacd;max-width:620px}
+.telegram-btn{
+  display:inline-flex;margin-top:26px;padding:16px 22px;border-radius:999px;
+  background:linear-gradient(135deg,#111c31,#235fcb 58%,#4fc7ff);
+  font-size:13px;font-weight:900;box-shadow:0 18px 44px rgba(34,99,211,.22)
+}
+.detail-visual{min-height:500px;border-radius:34px;padding:18px;background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08);box-shadow:0 32px 90px rgba(0,0,0,.28)}
+.screen{height:100%;min-height:464px;border-radius:24px;position:relative;overflow:hidden;background:linear-gradient(165deg,#0b1320,#112844 54%,#08111d)}
+.screen:before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:48px 48px;opacity:.25}
+.screen-label{position:absolute;top:26px;left:26px;font-size:11px;letter-spacing:.14em;font-weight:900;color:#8da7c3}
+.screen-chart{position:absolute;left:7%;right:7%;bottom:12%;height:55%}
+.screen-chart svg,.mini-chart svg{width:100%;height:100%}
+
+.detail-section{width:min(1160px,100%);margin:110px auto 0}
+.detail-section h3,.detail-final h3{font-size:clamp(42px,5vw,72px);letter-spacing:-.06em;margin:0 0 18px}
+.detail-section>p,.detail-final>p{font-size:19px;line-height:1.6;color:#9fb1c5;max-width:800px}
+.feature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:34px}
+.feature{padding:26px;border-radius:26px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08)}
+.feature b{display:block;font-size:20px;margin-bottom:8px}
+.feature span{color:#94a7bc}
+
+.visual-section{width:min(1160px,100%);margin:90px auto 0;display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+.visual-card{min-height:320px;border-radius:28px;background:linear-gradient(160deg,#0b1422,#112744 55%,#08111d);border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden;padding:26px}
+.v-title{font-size:28px;font-weight:850;letter-spacing:-.045em}
+.v-sub{color:#8fa5bd;margin-top:8px}
+.mini-chart{position:absolute;left:24px;right:24px;bottom:24px;height:170px}
+.diamond{position:absolute;left:50%;top:58%;width:150px;height:150px;transform:translate(-50%,-50%) rotate(45deg);border-radius:26px;background:linear-gradient(135deg,#fff,#bfeeff 26%,#4b83ff 58%,#e9fbff 82%,#fff);box-shadow:0 24px 60px rgba(63,132,255,.22)}
+.detail-final{width:min(1160px,100%);margin:110px auto 0;text-align:center;padding:70px 24px;border-radius:34px;background:linear-gradient(155deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.08)}
+.detail-final p{margin-left:auto;margin-right:auto}
+
+.hidden-home{display:none}
+@media(max-width:900px){
+  .rooms-grid{grid-template-columns:1fr;max-width:560px;margin:auto}
+  .room-meta p{min-height:0}
+  .detail-hero,.visual-section{grid-template-columns:1fr}
+  .feature-grid{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .navmeta{display:none}
+  h1{font-size:64px}
+  .detail-view{padding-left:14px;padding-right:14px}
+  .detail-copy h2{font-size:52px}
+  .detail-lead{font-size:18px}
+}
+
+/* ===== Immersive motion layer ===== */
+#ambientCanvas{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.5;
+}
+
+.hero-inner{
+  will-change:transform;
+  transition:transform .08s linear;
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(111,211,255,.08), transparent 18%);
+  transition:background .18s ease;
+}
+
+.open{
+  position:relative;
+  overflow:hidden;
+}
+.open:before{
+  content:"";
+  position:absolute;
+  inset:-100% 45% -100% -30%;
+  background:linear-gradient(110deg,transparent,rgba(255,255,255,.24),transparent);
+  transform:translateX(-180%) skewX(-14deg);
+  animation:openSweep 3.8s ease-in-out infinite;
+}
+@keyframes openSweep{
+  0%,55%{transform:translateX(-180%) skewX(-14deg)}
+  85%,100%{transform:translateX(350%) skewX(-14deg)}
+}
+
+.room-card{
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.room-card .room-meta,
+.room-card .door-wrap{
+  transform:translateZ(24px);
+}
+.door-aura{
+  animation:doorPulse 3.8s ease-in-out infinite;
+}
+@keyframes doorPulse{
+  0%,100%{transform:scale(.95);opacity:.16}
+  50%{transform:scale(1.08);opacity:.30}
+}
+.door-frame{
+  transition:transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s ease;
+}
+.room-card:hover .door-frame{
+  transform:translateY(-7px) scale(1.018);
+  box-shadow:0 34px 72px rgba(0,0,0,.36),0 0 38px rgba(113,218,255,.10);
+}
+.door-glare{
+  animation:doorSweep 5s ease-in-out infinite;
+}
+@keyframes doorSweep{
+  0%,62%{transform:translateX(-25%) skewX(-16deg)}
+  88%,100%{transform:translateX(180%) skewX(-16deg)}
+}
+
+.transition-portal{
+  position:fixed;
+  inset:0;
+  z-index:999;
+  pointer-events:none;
+  display:grid;
+  place-items:center;
+  background:rgba(3,8,15,0);
+  opacity:0;
+  transition:opacity .35s ease, background .55s ease;
+}
+.transition-portal.active{
+  opacity:1;
+  background:rgba(3,8,15,.88);
+}
+.transition-door{
+  width:220px;
+  height:330px;
+  padding:10px;
+  border-radius:28px 28px 14px 14px;
+  background:linear-gradient(145deg,#fff,rgba(183,222,255,.62),#fff);
+  box-shadow:0 0 70px rgba(101,208,255,.15),0 30px 80px rgba(0,0,0,.45);
+  transform:perspective(1100px) translateZ(-250px) scale(.45);
+  opacity:0;
+  transition:transform .72s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+}
+.transition-portal.active .transition-door{
+  opacity:1;
+  transform:perspective(1100px) translateZ(200px) scale(2.35);
+}
+.transition-door-inner{
+  width:100%;
+  height:100%;
+  border-radius:20px 20px 8px 8px;
+  background:
+    radial-gradient(circle at 68% 18%,rgba(130,219,255,.24),transparent 28%),
+    linear-gradient(165deg,#0b1320,#112946 54%,#07101b);
+  position:relative;
+  overflow:hidden;
+}
+.transition-door-inner:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(110deg,transparent 25%,rgba(255,255,255,.16) 48%,transparent 68%);
+  transform:translateX(-120%);
+  animation:portalFlash .8s ease forwards;
+}
+@keyframes portalFlash{
+  to{transform:translateX(120%)}
+}
+
+.detail-view.active{
+  animation:detailIn .72s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes detailIn{
+  from{opacity:0;transform:translateY(22px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+.reveal-block{
+  opacity:0;
+  transform:translateY(38px);
+  transition:opacity .75s ease,transform .75s cubic-bezier(.2,.8,.2,1);
+}
+.reveal-block.revealed{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.screen-chart path[fill="none"],
+.mini-chart path[fill="none"]{
+  stroke-dasharray:900;
+  stroke-dashoffset:900;
+}
+.animate-chart path[fill="none"]{
+  animation:drawChart 1.5s ease forwards;
+}
+@keyframes drawChart{
+  to{stroke-dashoffset:0}
+}
+
+.detail-visual,
+.visual-card{
+  transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease;
+}
+.detail-visual:hover,
+.visual-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 38px 90px rgba(0,0,0,.33);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,
+  *:before,
+  *:after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
+</style>
+</head>
+<body>
+<canvas id="ambientCanvas" aria-hidden="true"></canvas>
+<div class="transition-portal" id="transitionPortal">
+  <div class="transition-door">
+    <div class="transition-door-inner"></div>
+  </div>
+</div>
+
+<nav>
+  <div class="brand">TRADING HOUSE</div>
+  <div class="navmeta">PRIVATE ACCESS</div>
+</nav>
+
+<main id="home">
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">Trading House · Premium Access</div>
+      <h1>Trading <span>House</span></h1>
+      <p>Apri l’accesso e scegli la room che vuoi esplorare.</p>
+      <a class="open" href="#rooms">OPEN ↘</a>
+
+      <div class="scroll-hint">
+        <span>SCROLL TO ENTER</span>
+        <div class="scroll-mouse"><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="room-section" id="rooms">
+    <div class="wrap">
+      <h2>Choose your room.</h2>
+      <p>Ogni porta apre una pagina dedicata con informazioni, visual e accesso diretto su Telegram.</p>
+      <div class="rooms-grid">
+        
+    <button class="room-card" data-room="xauusd-signals" type="button">
+      <div class="door-wrap">
+        <div class="door-aura" style="--accent:#78ddff"></div>
+        <div class="door-frame">
+          <div class="door-panel">
+            <div class="door-grid"></div>
+            <div class="door-glare"></div>
+            <div class="door-symbol">XAUUSD</div>
+            <div class="door-line"></div>
+            <div class="door-knob"></div>
+          </div>
+        </div>
+      </div>
+      <div class="room-meta">
+        <span>Trading Room VIP</span>
+        <h3>XAUUSD Signals</h3>
+        <p>Segnali operativi, livelli, contesto e gestione dedicati al Gold.</p>
+        <b>SCOPRI LA ROOM ↗</b>
+      </div>
+    </button>
+    
+    <button class="room-card" data-room="btcusd-signals" type="button">
+      <div class="door-wrap">
+        <div class="door-aura" style="--accent:#8db8ff"></div>
+        <div class="door-frame">
+          <div class="door-panel">
+            <div class="door-grid"></div>
+            <div class="door-glare"></div>
+            <div class="door-symbol">BTCUSD</div>
+            <div class="door-line"></div>
+            <div class="door-knob"></div>
+          </div>
+        </div>
+      </div>
+      <div class="room-meta">
+        <span>Trading Room VIP</span>
+        <h3>BTCUSD Signals</h3>
+        <p>Segnali e scenari operativi dedicati a Bitcoin e BTCUSD.</p>
+        <b>SCOPRI LA ROOM ↗</b>
+      </div>
+    </button>
+    
+    <button class="room-card" data-room="xauusd-auto" type="button">
+      <div class="door-wrap">
+        <div class="door-aura" style="--accent:#b6f0ff"></div>
+        <div class="door-frame">
+          <div class="door-panel">
+            <div class="door-grid"></div>
+            <div class="door-glare"></div>
+            <div class="door-symbol">AUTO</div>
+            <div class="door-line"></div>
+            <div class="door-knob"></div>
+          </div>
+        </div>
+      </div>
+      <div class="room-meta">
+        <span>Trading Room VIP</span>
+        <h3>XAUUSD Automatica</h3>
+        <p>Accesso alla strategia automatica dedicata al Gold/XAUUSD.</p>
+        <b>SCOPRI LA ROOM ↗</b>
+      </div>
+    </button>
+    
+      </div>
+    </div>
+  </section>
+</main>
+
+
+    <section class="detail-view" id="detail-xauusd-signals">
+      <div class="detail-nav">
+        <button class="back-btn" type="button">← TORNA ALLE ROOM</button>
+      </div>
+
+      <div class="detail-hero">
+        <div class="detail-copy">
+          <div class="detail-badge">Trading Room VIP</div>
+          <h2>XAUUSD Signals</h2>
+          <p class="detail-lead">Segnali operativi, livelli, contesto e gestione dedicati al Gold.</p>
+          <a class="telegram-btn" href="https://t.me/snp_fx?text=Ciao%2C%20voglio%20accedere%20alla%20Trading%20Room%20VIP%20XAUUSD%20Signals.%20Mi%20dai%20tutte%20le%20informazioni%3F" target="_blank" rel="noopener">
+            RICHIEDI ACCESSO SU TELEGRAM ↗
+          </a>
+        </div>
+
+        <div class="detail-visual">
+          <div class="screen">
+            <div class="screen-label">XAUUSD · TRADING HOUSE</div>
+            <div class="screen-chart">
+    <svg viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="g-78ddff" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#78ddff" stop-opacity=".38"/>
+          <stop offset="100%" stop-color="#78ddff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34 L500 220 L0 220 Z"
+            fill="url(#g-78ddff)"/>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34"
+            fill="none" stroke="#78ddff" stroke-width="4"/>
+      <circle cx="371" cy="68" r="6" fill="#e9fbff"/>
+    </svg>
+    </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section reveal-block">
+        <h3>Dentro questa room.</h3>
+        <p>Una room focalizzata esclusivamente su XAUUSD, pensata per chi vuole seguire scenari operativi già strutturati senza dover analizzare ogni movimento da zero.</p>
+        <div class="feature-grid"><div class="feature"><b>Setup operativi XAUUSD</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Entry, Stop Loss e Take Profit</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Aggiornamenti sulla gestione</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Contesto tecnico della sessione</b><span>Incluso nell’esperienza della room.</span></div></div>
+      </div>
+
+      <div class="visual-section reveal-block">
+        <div class="visual-card wide">
+          <div class="v-title">Market View</div>
+          <div class="v-sub">Lettura visiva, livelli e contesto.</div>
+          <div class="mini-chart">
+    <svg viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="g-78ddff" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#78ddff" stop-opacity=".38"/>
+          <stop offset="100%" stop-color="#78ddff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34 L500 220 L0 220 Z"
+            fill="url(#g-78ddff)"/>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34"
+            fill="none" stroke="#78ddff" stroke-width="4"/>
+      <circle cx="371" cy="68" r="6" fill="#e9fbff"/>
+    </svg>
+    </div>
+        </div>
+        <div class="visual-card">
+          <div class="v-title">Trading House</div>
+          <div class="v-sub">Room verticale, identità unica.</div>
+          <div class="diamond"></div>
+        </div>
+      </div>
+
+      <div class="detail-final reveal-block">
+        <h3>Vuoi entrare in XAUUSD Signals?</h3>
+        <p>Apri la chat Telegram: il messaggio per questa room è già pronto.</p>
+        <a class="telegram-btn" href="https://t.me/snp_fx?text=Ciao%2C%20voglio%20accedere%20alla%20Trading%20Room%20VIP%20XAUUSD%20Signals.%20Mi%20dai%20tutte%20le%20informazioni%3F" target="_blank" rel="noopener">PARLA CON @SNP_FX ↗</a>
+      </div>
+    </section>
+    
+    <section class="detail-view" id="detail-btcusd-signals">
+      <div class="detail-nav">
+        <button class="back-btn" type="button">← TORNA ALLE ROOM</button>
+      </div>
+
+      <div class="detail-hero">
+        <div class="detail-copy">
+          <div class="detail-badge">Trading Room VIP</div>
+          <h2>BTCUSD Signals</h2>
+          <p class="detail-lead">Segnali e scenari operativi dedicati a Bitcoin e BTCUSD.</p>
+          <a class="telegram-btn" href="https://t.me/snp_fx?text=Ciao%2C%20voglio%20accedere%20alla%20Trading%20Room%20VIP%20BTCUSD%20Signals.%20Mi%20dai%20tutte%20le%20informazioni%3F" target="_blank" rel="noopener">
+            RICHIEDI ACCESSO SU TELEGRAM ↗
+          </a>
+        </div>
+
+        <div class="detail-visual">
+          <div class="screen">
+            <div class="screen-label">BTCUSD · TRADING HOUSE</div>
+            <div class="screen-chart">
+    <svg viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="g-8db8ff" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8db8ff" stop-opacity=".38"/>
+          <stop offset="100%" stop-color="#8db8ff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34 L500 220 L0 220 Z"
+            fill="url(#g-8db8ff)"/>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34"
+            fill="none" stroke="#8db8ff" stroke-width="4"/>
+      <circle cx="371" cy="68" r="6" fill="#e9fbff"/>
+    </svg>
+    </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section reveal-block">
+        <h3>Dentro questa room.</h3>
+        <p>Una room verticale per chi vuole concentrarsi su Bitcoin, con letture operative, livelli e gestione pensati per la volatilità tipica del mercato crypto.</p>
+        <div class="feature-grid"><div class="feature"><b>Setup operativi BTCUSD</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Livelli chiave e invalidazione</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Aggiornamenti sulla posizione</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Focus sulla volatilità crypto</b><span>Incluso nell’esperienza della room.</span></div></div>
+      </div>
+
+      <div class="visual-section reveal-block">
+        <div class="visual-card wide">
+          <div class="v-title">Market View</div>
+          <div class="v-sub">Lettura visiva, livelli e contesto.</div>
+          <div class="mini-chart">
+    <svg viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="g-8db8ff" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8db8ff" stop-opacity=".38"/>
+          <stop offset="100%" stop-color="#8db8ff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34 L500 220 L0 220 Z"
+            fill="url(#g-8db8ff)"/>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34"
+            fill="none" stroke="#8db8ff" stroke-width="4"/>
+      <circle cx="371" cy="68" r="6" fill="#e9fbff"/>
+    </svg>
+    </div>
+        </div>
+        <div class="visual-card">
+          <div class="v-title">Trading House</div>
+          <div class="v-sub">Room verticale, identità unica.</div>
+          <div class="diamond"></div>
+        </div>
+      </div>
+
+      <div class="detail-final reveal-block">
+        <h3>Vuoi entrare in BTCUSD Signals?</h3>
+        <p>Apri la chat Telegram: il messaggio per questa room è già pronto.</p>
+        <a class="telegram-btn" href="https://t.me/snp_fx?text=Ciao%2C%20voglio%20accedere%20alla%20Trading%20Room%20VIP%20BTCUSD%20Signals.%20Mi%20dai%20tutte%20le%20informazioni%3F" target="_blank" rel="noopener">PARLA CON @SNP_FX ↗</a>
+      </div>
+    </section>
+    
+    <section class="detail-view" id="detail-xauusd-auto">
+      <div class="detail-nav">
+        <button class="back-btn" type="button">← TORNA ALLE ROOM</button>
+      </div>
+
+      <div class="detail-hero">
+        <div class="detail-copy">
+          <div class="detail-badge">Trading Room VIP</div>
+          <h2>XAUUSD Automatica</h2>
+          <p class="detail-lead">Accesso alla strategia automatica dedicata al Gold/XAUUSD.</p>
+          <a class="telegram-btn" href="https://t.me/snp_fx?text=Ciao%2C%20voglio%20informazioni%20sulla%20Trading%20Room%20VIP%20con%20strategia%20automatica%20XAUUSD." target="_blank" rel="noopener">
+            RICHIEDI ACCESSO SU TELEGRAM ↗
+          </a>
+        </div>
+
+        <div class="detail-visual">
+          <div class="screen">
+            <div class="screen-label">AUTO · TRADING HOUSE</div>
+            <div class="screen-chart">
+    <svg viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="g-b6f0ff" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#b6f0ff" stop-opacity=".38"/>
+          <stop offset="100%" stop-color="#b6f0ff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34 L500 220 L0 220 Z"
+            fill="url(#g-b6f0ff)"/>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34"
+            fill="none" stroke="#b6f0ff" stroke-width="4"/>
+      <circle cx="371" cy="68" r="6" fill="#e9fbff"/>
+    </svg>
+    </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section reveal-block">
+        <h3>Dentro questa room.</h3>
+        <p>Una room dedicata a chi vuole integrare una strategia automatizzata sul Gold, riducendo l'intervento manuale e lavorando secondo condizioni operative predefinite.</p>
+        <div class="feature-grid"><div class="feature"><b>Strategia automatizzata XAUUSD</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Logica operativa predefinita</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Riduzione dell'intervento manuale</b><span>Incluso nell’esperienza della room.</span></div><div class="feature"><b>Accesso e supporto dedicato</b><span>Incluso nell’esperienza della room.</span></div></div>
+      </div>
+
+      <div class="visual-section reveal-block">
+        <div class="visual-card wide">
+          <div class="v-title">Market View</div>
+          <div class="v-sub">Lettura visiva, livelli e contesto.</div>
+          <div class="mini-chart">
+    <svg viewBox="0 0 500 220" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="g-b6f0ff" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#b6f0ff" stop-opacity=".38"/>
+          <stop offset="100%" stop-color="#b6f0ff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34 L500 220 L0 220 Z"
+            fill="url(#g-b6f0ff)"/>
+      <path d="M0 174 C35 158,63 171,94 142 S142 151,176 112 S237 127,271 91 S338 102,371 68 S433 78,500 34"
+            fill="none" stroke="#b6f0ff" stroke-width="4"/>
+      <circle cx="371" cy="68" r="6" fill="#e9fbff"/>
+    </svg>
+    </div>
+        </div>
+        <div class="visual-card">
+          <div class="v-title">Trading House</div>
+          <div class="v-sub">Room verticale, identità unica.</div>
+          <div class="diamond"></div>
+        </div>
+      </div>
+
+      <div class="detail-final reveal-block">
+        <h3>Vuoi entrare in XAUUSD Automatica?</h3>
+        <p>Apri la chat Telegram: il messaggio per questa room è già pronto.</p>
+        <a class="telegram-btn" href="https://t.me/snp_fx?text=Ciao%2C%20voglio%20informazioni%20sulla%20Trading%20Room%20VIP%20con%20strategia%20automatica%20XAUUSD." target="_blank" rel="noopener">PARLA CON @SNP_FX ↗</a>
+      </div>
+    </section>
+    
+
+
+<script>
+const home = document.getElementById('home');
+const cards = document.querySelectorAll('.room-card');
+const details = document.querySelectorAll('.detail-view');
+const backs = document.querySelectorAll('.back-btn');
+const transitionPortal = document.getElementById('transitionPortal');
+const hero = document.querySelector('.hero');
+const heroInner = document.querySelector('.hero-inner');
+
+function performPortalTransition(cb){
+  transitionPortal.classList.add('active');
+  setTimeout(() => {
+    cb();
+  }, 480);
+  setTimeout(() => {
+    transitionPortal.classList.remove('active');
+  }, 760);
+}
+
+function openRoom(id) {
+  performPortalTransition(() => {
+    home.classList.add('hidden-home');
+    details.forEach(d => d.classList.remove('active'));
+    const target = document.getElementById('detail-' + id);
+    if (target) {
+      target.classList.add('active');
+      window.scrollTo({top:0,behavior:'auto'});
+      history.replaceState(null,'','#'+id);
+      setTimeout(() => refreshRevealTargets(), 80);
+    }
+  });
+}
+
+function showHome() {
+  performPortalTransition(() => {
+    details.forEach(d => d.classList.remove('active'));
+    home.classList.remove('hidden-home');
+    history.replaceState(null,'',location.pathname);
+    window.scrollTo({top:document.getElementById('rooms').offsetTop - 80,behavior:'auto'});
+  });
+}
+
+cards.forEach(card => card.addEventListener('click', () => openRoom(card.dataset.room)));
+backs.forEach(btn => btn.addEventListener('click', showHome));
+
+const hash = location.hash.replace('#','');
+if (hash && document.getElementById('detail-' + hash)) {
+  home.classList.add('hidden-home');
+  document.getElementById('detail-' + hash).classList.add('active');
+}
+
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('revealed');
+    }
+  })
+},{threshold:.16});
+
+const chartObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('animate-chart');
+    }
+  })
+},{threshold:.25});
+
+function refreshRevealTargets(){
+  document.querySelectorAll('.reveal-block').forEach(el=>revealObserver.observe(el));
+  document.querySelectorAll('.screen-chart,.mini-chart').forEach(el=>chartObserver.observe(el));
+}
+refreshRevealTargets();
+
+// Hero parallax + pointer light
+window.addEventListener('mousemove', e=>{
+  const nx = (e.clientX / innerWidth - .5);
+  const ny = (e.clientY / innerHeight - .5);
+
+  document.documentElement.style.setProperty('--mx', `${e.clientX}px`);
+  document.documentElement.style.setProperty('--my', `${e.clientY}px`);
+
+  if(heroInner && !home.classList.contains('hidden-home')){
+    heroInner.style.transform = `translate3d(${nx * 10}px,${ny * 7}px,0)`;
+  }
+
+  document.querySelectorAll('.room-card').forEach(card=>{
+    const r = card.getBoundingClientRect();
+    const cx = r.left + r.width/2;
+    const cy = r.top + r.height/2;
+    const dx = (e.clientX - cx) / Math.max(r.width,1);
+    const dy = (e.clientY - cy) / Math.max(r.height,1);
+    if(Math.abs(dx)<1.2 && Math.abs(dy)<1.2){
+      card.style.transform = `perspective(900px) rotateY(${dx*3.5}deg) rotateX(${-dy*3}deg) translateY(-2px)`;
+    } else {
+      card.style.transform = '';
+    }
+  });
+});
+
+// Ambient particles
+const canvas = document.getElementById('ambientCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+function resizeCanvas(){
+  canvas.width = innerWidth * dpr;
+  canvas.height = innerHeight * dpr;
+  canvas.style.width = innerWidth + 'px';
+  canvas.style.height = innerHeight + 'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  particles = Array.from({length:42},()=>({
+    x:Math.random()*innerWidth,
+    y:Math.random()*innerHeight,
+    r:Math.random()*1.6+.3,
+    vy:Math.random()*.18+.04,
+    a:Math.random()*.35+.08
+  }));
+}
+resizeCanvas();
+addEventListener('resize',resizeCanvas);
+
+function drawAmbient(){
+  ctx.clearRect(0,0,innerWidth,innerHeight);
+  for(const p of particles){
+    p.y -= p.vy;
+    if(p.y < -5){
+      p.y = innerHeight+5;
+      p.x = Math.random()*innerWidth;
+    }
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = `rgba(120,220,255,${p.a})`;
+    ctx.fill();
+  }
+  requestAnimationFrame(drawAmbient);
+}
+drawAmbient();
+</script>
+
+</body>
+</html>
